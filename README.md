@@ -1,1 +1,1 @@
-# cse370_Project
+# CSE370 Project
