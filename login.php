@@ -126,7 +126,7 @@ $conn->close();
             <input type="password" name="password" placeholder="Password" required>
             <input type="submit" value="Login">
         </form>
-        <p>Don't have an account? <a href="first_view.html">SignUp</a></p>
+        <p>Don't have an account? <a href="index.html">SignUp</a></p>
     </div>
 </body>
 </html>
