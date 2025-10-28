@@ -1,3 +1,16 @@
+-- ================================================================================
+-- BLOOD BANK MANAGEMENT SYSTEM - COMPLETE DATABASE WITH DEMO DATA
+-- ================================================================================
+-- This file includes:
+-- 1. Database creation
+-- 2. All table structures
+-- 3. Default admin account
+-- 4. Sample blood banks
+-- 5. Blood inventory
+-- 6. Demo users, hospitals, donations, orders, and feedback
+-- ================================================================================
+
+
 -- phpMyAdmin SQL Dump
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
