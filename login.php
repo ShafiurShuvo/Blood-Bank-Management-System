@@ -1,132 +1,128 @@
 <?php
-session_start();
+require_once 'config/session.php';
+require_once 'config/db_connect.php';
 
-include "connection.php";
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email = $_POST['email'];
-    $password = $_POST['password'];
-
-    $sql1 = "SELECT * FROM user WHERE email='$email' and `password`='$password'";
-    $result1 = $conn->query($sql1);
-
-
-    $sql2 = "SELECT * FROM hospital WHERE email='$email' and `password`='$password'";
-    $result2 = $conn->query($sql2);
-
-
-    $sql3 = "SELECT * FROM `admin` WHERE Admin_Email='$email'and `password`='$password'";
-    $result3 = $conn->query($sql3);
-
-
-    $sqlBlocked = "SELECT * FROM user WHERE email='$email' and `password`='$password' and blocked='yes'";
-    $resultBlocked = $conn->query($sqlBlocked);
-
-    if ($resultBlocked->num_rows > 0) {
-            echo "Your account has been blocked. Please contact admin.";
-        }
-    elseif ($result1->num_rows > 0) {
-        $row = $result1->fetch_assoc();
-
-        $_SESSION['user_id'] = $row['user_id'];
-        $_SESSION['first_name'] = $row['first_name'];
-        $_SESSION['last_name'] = $row['last_name'];
-        $_SESSION['phone_number'] = $row['phone_number'];
-        $_SESSION['email'] = $row['email'];
-        $_SESSION['address'] = $row['address'];
-        $_SESSION['blocked'] = $row['blocked'];
-
-        header("Location: user_home.php");
-        exit();
-    }
-
-    elseif ($result2->num_rows > 0) {
-        $row = $result2->fetch_assoc();
-
-        $_SESSION['hospital_id'] = $row['hospital_id'];
-        $_SESSION['hospital_name'] = $row['hospital_name'];
-        $_SESSION['email'] = $row['email'];
-
-        header("Location: hospital_home.php");
-        exit();
-    }
-
-    elseif ($result3->num_rows > 0) {
-        $row = $result3->fetch_assoc();
-
-        $_SESSION['admin_id'] = $row['admin_id'];
-        $_SESSION['name'] = $row['name'];
-        $_SESSION['Admin_Email'] = $row['Admin_Email'];
-
-        header("Location: admin_home.php");
-        exit();
-    }   
-     else {
-        echo "Invalid email or password";
-    }
+// Redirect if already logged in
+if (isLoggedIn()) {
+    redirectToDashboard();
 }
 
-$conn->close();
-?>
+$error = '';
 
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $email = mysqli_real_escape_string($conn, $_POST['email']);
+    $password = mysqli_real_escape_string($conn, $_POST['password']);
+    $user_type = $_POST['user_type'];
+    
+    if ($user_type == 'user') {
+        // Check in users table
+        $query = "SELECT * FROM users WHERE email = '$email' AND is_blocked = 0";
+        $result = mysqli_query($conn, $query);
+        
+        if ($result && mysqli_num_rows($result) == 1) {
+            $user = mysqli_fetch_assoc($result);
+            if (md5($password) == $user['password']) {
+                $_SESSION['user_id'] = $user['user_id'];
+                $_SESSION['full_name'] = $user['full_name'];
+                $_SESSION['email'] = $user['email'];
+                header("Location: user/dashboard.php");
+                exit();
+            } else {
+                $error = "Invalid password!";
+            }
+        } else {
+            $error = "User not found or account is blocked!";
+        }
+    } elseif ($user_type == 'hospital') {
+        // Check in hospitals table
+        $query = "SELECT * FROM hospitals WHERE email = '$email' AND is_blocked = 0";
+        $result = mysqli_query($conn, $query);
+        
+        if ($result && mysqli_num_rows($result) == 1) {
+            $hospital = mysqli_fetch_assoc($result);
+            if (md5($password) == $hospital['password']) {
+                $_SESSION['hospital_id'] = $hospital['hospital_id'];
+                $_SESSION['hospital_name'] = $hospital['hospital_name'];
+                $_SESSION['email'] = $hospital['email'];
+                header("Location: hospital/dashboard.php");
+                exit();
+            } else {
+                $error = "Invalid password!";
+            }
+        } else {
+            $error = "Hospital not found or account is blocked!";
+        }
+    } elseif ($user_type == 'admin') {
+        // Check in admins table
+        $query = "SELECT * FROM admins WHERE username = '$email' OR email = '$email'";
+        $result = mysqli_query($conn, $query);
+        
+        if ($result && mysqli_num_rows($result) == 1) {
+            $admin = mysqli_fetch_assoc($result);
+            if (md5($password) == $admin['password']) {
+                $_SESSION['admin_id'] = $admin['admin_id'];
+                $_SESSION['username'] = $admin['username'];
+                $_SESSION['email'] = $admin['email'];
+                header("Location: admin/dashboard.php");
+                exit();
+            } else {
+                $error = "Invalid password!";
+            }
+        } else {
+            $error = "Admin not found!";
+        }
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Login</title>
-
-    <link rel="stylesheet" type="text/css" href="styles.css">
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-        }
-        
-        .container {
-            width: 50%;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        
-        input[type="text"],
-        input[type="email"],
-        input[type="password"] {
-            width: 95%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-        }
-        
-        input[type="submit"] {
-            background-color: #4caf50;
-            color: #fff;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-        
-        input[type="submit"]:hover {
-            background-color: #45a049;
-        }
-
-    </style> 
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Blood Bank System</title>
+    <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-    <div class="container">
-        <h2>Login</h2>
-        <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
-            <i class='bx bx-user'></i>
-            <input type="email" name="email" placeholder="Email" required>
-            <i class='bx bx-lock' ></i>
-            <input type="password" name="password" placeholder="Password" required>
-            <input type="submit" value="Login">
-        </form>
-        <p>Don't have an account? <a href="index.html">SignUp</a></p>
+    <div class="auth-container">
+        <div class="auth-box">
+            <div class="auth-header">
+                <h1>🩸 Blood Bank</h1>
+                <h2>Login to Your Account</h2>
+            </div>
+            
+            <?php if ($error): ?>
+                <div class="alert alert-error"><?php echo $error; ?></div>
+            <?php endif; ?>
+            
+            <form method="POST" action="" class="auth-form">
+                <div class="form-group">
+                    <label for="user_type">Login As:</label>
+                    <select name="user_type" id="user_type" required>
+                        <option value="user">User/Donor</option>
+                        <option value="hospital">Hospital</option>
+                        <option value="admin">Administrator</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email/Username:</label>
+                    <input type="text" id="email" name="email" placeholder="Enter your email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-block">Login</button>
+            </form>
+            
+            <div class="auth-footer">
+                <p>Don't have an account? <a href="register.php">Register here</a></p>
+                <p><a href="index.php">Back to Home</a></p>
+            </div>
+        </div>
     </div>
 </body>
 </html>
+

@@ -1,0 +1,98 @@
+<?php
+require_once 'config/session.php';
+
+// Redirect to dashboard if already logged in
+if (isLoggedIn()) {
+    redirectToDashboard();
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Bank Management System</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <div class="landing-page">
+        <header>
+            <nav class="navbar">
+                <div class="logo">
+                    <h1>🩸 Blood Bank</h1>
+                </div>
+                <ul class="nav-links">
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="login.php" class="btn-login">Login</a></li>
+                    <li><a href="register.php" class="btn-register">Register</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <section id="home" class="hero-section">
+            <div class="hero-content">
+                <h1>Find Blood in Emergency 🩸</h1>
+                <p>A platform to simplify blood donation and help save lives</p>
+                <div class="hero-buttons">
+                    <a href="register.php" class="btn btn-primary">Get Started</a>
+                    <a href="#about" class="btn btn-secondary">Learn More</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="about-section">
+            <div class="container">
+                <h2>About Our System</h2>
+                <p>Our Blood Bank Management System simplifies the process when anyone needs blood in an emergency. Donors can donate blood as per their convenience, and if the desired blood is not available in the inventory, patients can make a request to all registered donors.</p>
+            </div>
+        </section>
+
+        <section id="features" class="features-section">
+            <div class="container">
+                <h2>Key Features</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">👤</div>
+                        <h3>User Registration</h3>
+                        <p>Easy signup for users, hospitals, and blood banks</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🩸</div>
+                        <h3>Blood Donation</h3>
+                        <p>Donate blood to your nearest blood bank</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🏥</div>
+                        <h3>Order Blood</h3>
+                        <p>Request blood from blood banks or donors</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📊</div>
+                        <h3>Inventory Management</h3>
+                        <p>Real-time blood inventory tracking</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">💬</div>
+                        <h3>Feedback System</h3>
+                        <p>Send feedback and register complaints</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⚙️</div>
+                        <h3>Admin Panel</h3>
+                        <p>Comprehensive management for administrators</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <div class="container">
+                <p>&copy; 2025 Blood Bank Management System. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>
+
